@@ -1,3 +1,3 @@
-import { usersTable, userSessions } from "./user.model.js";
+import { usersTable } from "./user.model.js";
 
-export { usersTable, userSessions }
+export { usersTable }

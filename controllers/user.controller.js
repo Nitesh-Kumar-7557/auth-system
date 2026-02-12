@@ -1,7 +1,8 @@
 import { eq } from "drizzle-orm";
 import { db } from "../db/index.js";
-import { userSessions, usersTable } from "../models/user.model.js";
+import { usersTable } from "../models/user.model.js";
 import { createHmac, randomBytes } from "node:crypto";
+import jwt from 'jsonwebtoken';
 
 export async function addNewUser(req, res) {
   const { name, email, password } = req.body;
@@ -68,16 +69,17 @@ export async function loginUser(req, res) {
 
   // Create a session id for the logged in user!
 
-  const [session] = await db
-    .insert(userSessions)
-    .values({
-      userId: existingUser.id,
-    })
-    .returning({ id: userSessions.id });
+  const payload = {
+    id: existingUser.id,
+    email: existingUser.email,
+    name: existingUser.name
+  }
+
+  const token = jwt.sign(payload, process.env.JWT_SECRET)
 
   return res
     .status(200)
-    .json({ success: "Welcome back!", sessionId: `${session.id}` });
+    .json({ success: "Welcome back!", token });
 }
 
 export async function checkLoginStatus(req, res) {
